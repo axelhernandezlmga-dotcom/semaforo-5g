@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ambulancia</title>
+  </head>
+  <body>
+    <h1>🚑 Ambulancia</h1>
+    <button id="btn">ENVIAR ALERTA</button>
+    <p id="status"></p>
+    <script>
+      const btn = document.getElementById("btn");
+      btn.onclick = async () => {
+        const t0 = performance.now();
+        const res = await fetch("/alert", { method: "POST" });
+        const data = await res.json();
+        const t1 = performance.now();
+        document.getElementById("status").textContent = `Alerta enviada (${(
+          t1 - t0
+        ).toFixed(0)} ms)`;
+      };
+    </script>
+  </body>
+</html>

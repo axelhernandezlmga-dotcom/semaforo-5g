@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Semáforo</title>
+  </head>
+  <body>
+    <h1>🚦 Semáforo Inteligente</h1>
+    <div
+      id="light"
+      style="width: 100px; height: 100px; border-radius: 50%; background: red"
+    ></div>
+    <p id="result"></p>
+    <script>
+      const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
+      const ws = new WebSocket(wsProto + "//" + location.host);
+      ws.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+        if (msg.type === "ALERT") {
+          const now = Date.now();
+          const latency = now - msg.serverSentAt;
+          document.getElementById(
+            "result"
+          ).textContent = `Alerta recibida en ${latency} ms`;
+          const light = document.getElementById("light");
+          light.style.background = "green";
+          setTimeout(() => (light.style.background = "red"), 1000);
+        }
+      };
+    </script>
+  </body>
+</html>
