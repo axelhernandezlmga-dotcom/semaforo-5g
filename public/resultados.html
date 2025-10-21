@@ -52,11 +52,27 @@
         margin-top: 18px;
         display: inline-block;
       }
+      button {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: var(--accent);
+        color: #000;
+        font-weight: 600;
+        margin-top: 16px;
+      }
+      #msg {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
       <h1>📊 Resultados</h1>
+
       <div class="grid">
         <div class="net">
           <h3>5G</h3>
@@ -67,6 +83,10 @@
           <p id="s4g">Cargando…</p>
         </div>
       </div>
+
+      <button id="reset">🧹 Borrar datos</button>
+      <p id="msg"></p>
+
       <a href="./index.html">⬅ Volver al inicio</a>
     </div>
 
@@ -87,19 +107,43 @@
         };
         s5g.textContent = `Muestras: ${s5.samples} | Min: ${f(
           s5.min
-        )} | Prom: ${f(s5.avg)} | Máx: ${f(s5.max)}`;
+        )} ms | Prom: ${f(s5.avg)} ms | Máx: ${f(s5.max)} ms`;
         s4g.textContent = `Muestras: ${s4.samples} | Min: ${f(
           s4.min
-        )} | Prom: ${f(s4.avg)} | Máx: ${f(s4.max)}`;
+        )} ms | Prom: ${f(s4.avg)} ms | Máx: ${f(s4.max)} ms`;
       }
+
+      // Cargar stats iniciales
       fetch("/stats")
         .then((r) => r.json())
         .then(render);
+
+      // WebSocket para actualizaciones en vivo
       const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
       const ws = new WebSocket(wsProto + "//" + location.host);
       ws.onmessage = (e) => {
         const msg = JSON.parse(e.data);
         if (msg.type === "STATS_UPDATE") render(msg.stats);
+      };
+
+      // Botón borrar datos
+      const resetBtn = document.getElementById("reset");
+      const msgEl = document.getElementById("msg");
+
+      resetBtn.onclick = async () => {
+        msgEl.textContent = "Borrando datos...";
+        try {
+          const res = await fetch("/reset", { method: "POST" });
+          const data = await res.json();
+          if (data.ok) {
+            render(data.stats);
+            msgEl.textContent = "✅ Datos borrados correctamente.";
+          } else {
+            msgEl.textContent = "❌ Error al borrar datos.";
+          }
+        } catch {
+          msgEl.textContent = "❌ Error de conexión.";
+        }
       };
     </script>
   </body>

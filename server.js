@@ -11,7 +11,7 @@ app.use(express.static("public"));
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-// ====== Almacenamiento en memoria (simple para demo) ======
+// ====== Almacenamiento en memoria ======
 const store = { "5G": [], "4G": [] };
 
 function statsFor(network) {
@@ -43,15 +43,15 @@ function broadcast(json) {
 
 // ====== Endpoints ======
 
-// Enviar alerta desde Ambulancia (incluye red elegida)
+// Ambulancia envía alerta
 app.post("/alert", (req, res) => {
   const { networkType = "UNKNOWN" } = req.body || {};
   const event = { type: "ALERT", networkType, serverSentAt: Date.now() };
-  broadcast(event); // el Semáforo escucha esto
+  broadcast(event);
   res.json({ ok: true, event });
 });
 
-// El Semáforo reporta la latencia medida
+// Semáforo reporta latencia
 app.post("/latency", (req, res) => {
   const { networkType, latencyMs } = req.body || {};
   if (!networkType || typeof latencyMs !== "number") {
@@ -61,14 +61,23 @@ app.post("/latency", (req, res) => {
   store[networkType].push(latencyMs);
 
   const s = getStats();
-  broadcast({ type: "STATS_UPDATE", stats: s }); // Actualiza Resultados en vivo
+  broadcast({ type: "STATS_UPDATE", stats: s });
   res.json({ ok: true, stats: s });
 });
 
-// Consultar estadísticas actuales
-app.get("/stats", (req, res) => {
+// Consultar estadísticas
+app.get("/stats", (_req, res) => {
   res.json(getStats());
 });
 
+// ====== Reset simple (botón borrar datos) ======
+app.post("/reset", (_req, res) => {
+  store["5G"] = [];
+  store["4G"] = [];
+  const s = getStats();
+  broadcast({ type: "STATS_UPDATE", stats: s });
+  res.json({ ok: true, stats: s });
+});
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("Server running on port", PORT));
+server.listen(PORT, () => console.log("✅ Server running on port", PORT));
