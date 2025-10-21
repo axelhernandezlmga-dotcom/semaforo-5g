@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Semáforo – Laboratorio 5G</title>
+    <title>Resultados – Laboratorio 5G</title>
     <style>
       :root {
         --bg: #0f172a;
@@ -25,7 +25,7 @@
         align-items: center;
         flex-direction: column;
       }
-      .card {
+      .wrap {
         background: var(--card);
         padding: 32px;
         border-radius: 16px;
@@ -33,14 +33,17 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        width: 320px;
+        width: 400px;
       }
-      #light {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        background: red;
-        margin: 20px auto;
+      .grid {
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .net {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 10px;
       }
       a {
         color: var(--accent);
@@ -52,37 +55,51 @@
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>🚦 Semáforo Inteligente</h1>
-      <div id="light"></div>
-      <p id="result">Esperando alerta...</p>
+    <div class="wrap">
+      <h1>📊 Resultados</h1>
+      <div class="grid">
+        <div class="net">
+          <h3>5G</h3>
+          <p id="s5g">Cargando…</p>
+        </div>
+        <div class="net">
+          <h3>4G</h3>
+          <p id="s4g">Cargando…</p>
+        </div>
+      </div>
       <a href="./index.html">⬅ Volver al inicio</a>
     </div>
 
     <script>
+      function render(data) {
+        const f = (n) => (n == null ? "—" : n.toFixed ? n.toFixed(0) : n);
+        const s5 = data["5G"] || {
+          samples: 0,
+          min: null,
+          avg: null,
+          max: null,
+        };
+        const s4 = data["4G"] || {
+          samples: 0,
+          min: null,
+          avg: null,
+          max: null,
+        };
+        s5g.textContent = `Muestras: ${s5.samples} | Min: ${f(
+          s5.min
+        )} | Prom: ${f(s5.avg)} | Máx: ${f(s5.max)}`;
+        s4g.textContent = `Muestras: ${s4.samples} | Min: ${f(
+          s4.min
+        )} | Prom: ${f(s4.avg)} | Máx: ${f(s4.max)}`;
+      }
+      fetch("/stats")
+        .then((r) => r.json())
+        .then(render);
       const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
       const ws = new WebSocket(wsProto + "//" + location.host);
-      ws.onmessage = async (e) => {
+      ws.onmessage = (e) => {
         const msg = JSON.parse(e.data);
-        if (msg.type === "ALERT") {
-          const now = Date.now();
-          const latency = now - msg.serverSentAt;
-          const light = document.getElementById("light");
-          light.style.background = "green";
-          setTimeout(() => (light.style.background = "red"), 1000);
-          document.getElementById(
-            "result"
-          ).textContent = `Alerta (${msg.networkType}) recibida en ${latency} ms`;
-
-          await fetch("/latency", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              networkType: msg.networkType,
-              latencyMs: latency,
-            }),
-          });
-        }
+        if (msg.type === "STATS_UPDATE") render(msg.stats);
       };
     </script>
   </body>

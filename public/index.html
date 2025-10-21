@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Laboratorio 5G – Smart City</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #0b1220aa;
+        --text: #e5e7eb;
+        --accent: #22d3ee;
+      }
+      * {
+        box-sizing: border-box;
+        font-family: system-ui, Segoe UI, Roboto, Inter, Arial;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0b1020, #1e293b);
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+      header {
+        color: var(--text);
+        text-align: center;
+        margin: 24px 0 32px;
+      }
+      header h1 {
+        margin: 0 0 6px;
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+      }
+      header p {
+        margin: 0;
+        opacity: 0.8;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+      .card {
+        background: var(--card);
+        color: var(--text);
+        padding: 24px;
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        transition: transform 0.18s ease, box-shadow 0.18s ease,
+          border-color 0.18s;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+        border-color: rgba(34, 211, 238, 0.5);
+      }
+      .icon {
+        font-size: 40px;
+      }
+      .title {
+        font-weight: 700;
+        font-size: 1.15rem;
+        letter-spacing: 0.2px;
+      }
+      .desc {
+        opacity: 0.85;
+        line-height: 1.45;
+      }
+      footer {
+        color: #a1a1aa;
+        font-size: 0.9rem;
+        text-align: center;
+        margin-top: 32px;
+        opacity: 0.9;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      .pill {
+        padding: 6px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        font-size: 0.85rem;
+        color: #cbd5e1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Laboratorio 5G + Smart Cities</h1>
+        <p>
+          Elegí un modo para iniciar la demo del semáforo inteligente con
+          prioridad de emergencias.
+        </p>
+        <div class="row">
+          <span class="pill">WS en tiempo real</span>
+          <span class="pill">Comparación 5G vs 4G</span>
+          <span class="pill">Latencia en ms</span>
+        </div>
+      </header>
+
+      <main class="grid">
+        <a class="card" href="./ambulancia.html">
+          <div class="icon">🚑</div>
+          <div class="title">Ambulancia</div>
+          <div class="desc">
+            Elegí si sos 5G o 4G y enviá la alerta de prioridad.
+          </div>
+        </a>
+
+        <a class="card" href="./semaforo.html">
+          <div class="icon">🚦</div>
+          <div class="title">Semáforo</div>
+          <div class="desc">
+            Recibe la alerta por WebSocket, cambia a verde y mide la latencia.
+          </div>
+        </a>
+
+        <a class="card" href="./resultados.html">
+          <div class="icon">📊</div>
+          <div class="title">Resultados</div>
+          <div class="desc">
+            Mirá min/prom/máx y número de muestras por red en tiempo real.
+          </div>
+        </a>
+      </main>
+
+      <footer>
+        Repo: <strong>semaforo-5g</strong> • UCU / Lavalleja · Demo educativa
+      </footer>
+    </div>
+  </body>
+</html>

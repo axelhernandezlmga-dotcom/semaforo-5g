@@ -1,21 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
     <meta charset="utf-8" />
-    <title>Ambulancia</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ambulancia – Laboratorio 5G</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #0b1220aa;
+        --text: #e5e7eb;
+        --accent: #22d3ee;
+      }
+      * {
+        box-sizing: border-box;
+        font-family: system-ui, Segoe UI, Roboto, Inter, Arial;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0b1020, #1e293b);
+        color: var(--text);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .card {
+        background: var(--card);
+        padding: 32px;
+        border-radius: 16px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        width: 320px;
+      }
+      button {
+        padding: 10px 20px;
+        margin-top: 16px;
+        border: none;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #000;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      fieldset {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      legend {
+        padding: 0 8px;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-top: 18px;
+        display: inline-block;
+      }
+    </style>
   </head>
   <body>
-    <h1>🚑 Ambulancia</h1>
-    <button id="btn">ENVIAR ALERTA</button>
-    <p id="status"></p>
+    <div class="card">
+      <h1>🚑 Ambulancia</h1>
+      <fieldset>
+        <legend>Elegí tu red</legend>
+        <label><input type="radio" name="net" value="5G" checked /> 5G</label>
+        <label style="margin-left: 12px"
+          ><input type="radio" name="net" value="4G" /> 4G</label
+        >
+      </fieldset>
+
+      <button id="btn">ENVIAR ALERTA</button>
+      <p id="status"></p>
+
+      <a href="./index.html">⬅ Volver al inicio</a>
+    </div>
+
     <script>
+      function getNetwork() {
+        const r = document.querySelector('input[name="net"]:checked');
+        return r ? r.value : "UNKNOWN";
+      }
       const btn = document.getElementById("btn");
       btn.onclick = async () => {
+        const networkType = getNetwork();
         const t0 = performance.now();
-        const res = await fetch("/alert", { method: "POST" });
+        const res = await fetch("/alert", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ networkType }),
+        });
         const data = await res.json();
         const t1 = performance.now();
-        document.getElementById("status").textContent = `Alerta enviada (${(
+        document.getElementById(
+          "status"
+        ).textContent = `Alerta enviada como ${networkType} (${(
           t1 - t0
         ).toFixed(0)} ms)`;
       };
