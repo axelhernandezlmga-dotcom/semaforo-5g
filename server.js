@@ -12,7 +12,18 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 // ====== Almacenamiento en memoria ======
-const store = { "5G": [], "4G": [] };
+const store = { "5G": [], "4G": [], "3G": [] };
+
+function computeSimulatedDelay(networkType, packetSize) {
+  const baseByNetwork = {
+    "5G": 40,
+    "4G": 180,
+    "3G": 420,
+  };
+  const sizeMultiplier = packetSize === "1GB" ? 1.8 : 1;
+  const base = baseByNetwork[networkType] ?? 250;
+  return Math.round(base * sizeMultiplier);
+}
 
 function statsFor(network) {
   const arr = store[network] || [];
@@ -29,6 +40,7 @@ function getStats() {
   return {
     "5G": statsFor("5G"),
     "4G": statsFor("4G"),
+    "3G": statsFor("3G"),
   };
 }
 
@@ -45,10 +57,24 @@ function broadcast(json) {
 
 // Ambulancia envía alerta
 app.post("/alert", (req, res) => {
-  const { networkType = "UNKNOWN" } = req.body || {};
-  const event = { type: "ALERT", networkType, serverSentAt: Date.now() };
-  broadcast(event);
-  res.json({ ok: true, event });
+  const { networkType = "UNKNOWN", packetSize = "500MB" } = req.body || {};
+  const simulatedDelayMs = computeSimulatedDelay(networkType, packetSize);
+  const eventBase = {
+    type: "ALERT",
+    networkType,
+    packetSize,
+    simulatedDelayMs,
+  };
+
+  setTimeout(() => {
+    const event = {
+      ...eventBase,
+      serverSentAt: Date.now() - simulatedDelayMs,
+    };
+    broadcast(event);
+  }, simulatedDelayMs);
+
+  res.json({ ok: true, event: eventBase });
 });
 
 // Semáforo reporta latencia
@@ -74,6 +100,7 @@ app.get("/stats", (_req, res) => {
 app.post("/reset", (_req, res) => {
   store["5G"] = [];
   store["4G"] = [];
+  store["3G"] = [];
   const s = getStats();
   broadcast({ type: "STATS_UPDATE", stats: s });
   res.json({ ok: true, stats: s });

@@ -82,6 +82,10 @@
           <h3>4G</h3>
           <p id="s4g">Cargando…</p>
         </div>
+        <div class="net">
+          <h3>3G</h3>
+          <p id="s3g">Cargando…</p>
+        </div>
       </div>
 
       <button id="reset">🧹 Borrar datos</button>
@@ -91,6 +95,10 @@
     </div>
 
     <script>
+      const s5g = document.getElementById("s5g");
+      const s4g = document.getElementById("s4g");
+      const s3g = document.getElementById("s3g");
+
       function render(data) {
         const f = (n) => (n == null ? "—" : n.toFixed ? n.toFixed(0) : n);
         const s5 = data["5G"] || {
@@ -105,12 +113,21 @@
           avg: null,
           max: null,
         };
+        const s3 = data["3G"] || {
+          samples: 0,
+          min: null,
+          avg: null,
+          max: null,
+        };
         s5g.textContent = `Muestras: ${s5.samples} | Min: ${f(
           s5.min
         )} ms | Prom: ${f(s5.avg)} ms | Máx: ${f(s5.max)} ms`;
         s4g.textContent = `Muestras: ${s4.samples} | Min: ${f(
           s4.min
         )} ms | Prom: ${f(s4.avg)} ms | Máx: ${f(s4.max)} ms`;
+        s3g.textContent = `Muestras: ${s3.samples} | Min: ${f(
+          s3.min
+        )} ms | Prom: ${f(s3.avg)} ms | Máx: ${f(s3.max)} ms`;
       }
 
       // Cargar stats iniciales

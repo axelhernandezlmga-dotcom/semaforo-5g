@@ -56,6 +56,7 @@
       <h1>🚦 Semáforo Inteligente</h1>
       <div id="light"></div>
       <p id="result">Esperando alerta...</p>
+      <p id="packet">—</p>
       <a href="./index.html">⬅ Volver al inicio</a>
     </div>
 
@@ -73,6 +74,9 @@
           document.getElementById(
             "result"
           ).textContent = `Alerta (${msg.networkType}) recibida en ${latency} ms`;
+          document.getElementById("packet").textContent = `Paquete: ${
+            msg.packetSize || "N/D"
+          } · Latencia simulada: ${msg.simulatedDelayMs ?? 0} ms`;
 
           await fetch("/latency", {
             method: "POST",
@@ -80,6 +84,7 @@
             body: JSON.stringify({
               networkType: msg.networkType,
               latencyMs: latency,
+              packetSize: msg.packetSize,
             }),
           });
         }
