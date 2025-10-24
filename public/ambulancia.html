@@ -71,6 +71,20 @@
         <label style="margin-left: 12px"
           ><input type="radio" name="net" value="4G" /> 4G</label
         >
+        <label style="margin-left: 12px"
+          ><input type="radio" name="net" value="3G" /> 3G</label
+        >
+      </fieldset>
+
+      <fieldset>
+        <legend>Tamaño del paquete</legend>
+        <label
+          ><input type="radio" name="packet" value="500MB" checked /> 500
+          MB</label
+        >
+        <label style="margin-left: 12px"
+          ><input type="radio" name="packet" value="1GB" /> 1 GB</label
+        >
       </fieldset>
 
       <button id="btn">ENVIAR ALERTA</button>
@@ -84,22 +98,30 @@
         const r = document.querySelector('input[name="net"]:checked');
         return r ? r.value : "UNKNOWN";
       }
+
+      function getPacketSize() {
+        const r = document.querySelector('input[name="packet"]:checked');
+        return r ? r.value : "500MB";
+      }
       const btn = document.getElementById("btn");
       btn.onclick = async () => {
         const networkType = getNetwork();
+        const packetSize = getPacketSize();
         const t0 = performance.now();
         const res = await fetch("/alert", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ networkType }),
+          body: JSON.stringify({ networkType, packetSize }),
         });
         const data = await res.json();
         const t1 = performance.now();
         document.getElementById(
           "status"
-        ).textContent = `Alerta enviada como ${networkType} (${(
+        ).textContent = `Alerta enviada como ${networkType} · ${packetSize} (${(
           t1 - t0
-        ).toFixed(0)} ms)`;
+        ).toFixed(0)} ms) | Latencia simulada: ${
+          data.event?.simulatedDelayMs ?? "?"
+        } ms`;
       };
     </script>
   </body>
