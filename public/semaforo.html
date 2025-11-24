@@ -67,16 +67,28 @@
         const msg = JSON.parse(e.data);
         if (msg.type === "ALERT") {
           const now = Date.now();
-          const latency = now - msg.serverSentAt;
+          const clientLatency =
+            typeof msg.clientSentAt === "number"
+              ? now - msg.clientSentAt
+              : null;
+          const serverLatency =
+            typeof msg.serverSentAt === "number"
+              ? now - msg.serverSentAt
+              : null;
+          const latency = clientLatency ?? serverLatency ?? 0;
           const light = document.getElementById("light");
           light.style.background = "green";
           setTimeout(() => (light.style.background = "red"), 1000);
           document.getElementById(
             "result"
           ).textContent = `Alerta (${msg.networkType}) recibida en ${latency} ms`;
-          document.getElementById("packet").textContent = `Paquete: ${
-            msg.packetSize || "N/D"
-          } · Latencia simulada: ${msg.simulatedDelayMs ?? 0} ms`;
+          document.getElementById(
+            "packet"
+          ).textContent = `Paquete: ${msg.packetSize || "N/D"} · Cliente→Semáforo: ${
+            clientLatency != null ? `${clientLatency.toFixed(0)} ms` : "N/D"
+          } · Server→Semáforo: ${
+            serverLatency != null ? `${serverLatency.toFixed(0)} ms` : "N/D"
+          }`;
 
           await fetch("/latency", {
             method: "POST",
