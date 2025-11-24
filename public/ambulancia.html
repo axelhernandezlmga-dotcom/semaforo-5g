@@ -111,7 +111,11 @@
         const res = await fetch("/alert", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ networkType, packetSize }),
+          body: JSON.stringify({
+            networkType,
+            packetSize,
+            clientSentAt: Date.now(),
+          }),
         });
         const data = await res.json();
         const t1 = performance.now();
@@ -119,9 +123,9 @@
           "status"
         ).textContent = `Alerta enviada como ${networkType} · ${packetSize} (${(
           t1 - t0
-        ).toFixed(0)} ms) | Latencia simulada: ${
-          data.event?.simulatedDelayMs ?? "?"
-        } ms`;
+        ).toFixed(0)} ms HTTP) | serverReceivedAt: ${
+          data.event?.serverReceivedAt ?? "?"
+        }`;
       };
     </script>
   </body>
